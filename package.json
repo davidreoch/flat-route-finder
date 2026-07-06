@@ -1,0 +1,14 @@
+{
+  "name": "flat-route-finder",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "One-tap flat running route finder — pick a distance, get a flat loop from your location.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

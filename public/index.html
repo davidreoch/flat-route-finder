@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Flat Route Finder — Instant Flat Running Loops Near You</title>
+    <meta
+      name="description"
+      content="Pick a distance, tap once, get a flat running loop from where you are. No login, no drawing, prefers paths over busy roads. Free."
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="panel" id="panel">
+      <div class="panel-head">
+        <h1>Flat Route Finder</h1>
+        <p>Pick a distance, get a flat loop. No hills, no faff.</p>
+      </div>
+
+      <button id="locate" class="locate">📍 Use my location</button>
+
+      <div class="search-row">
+        <input id="search" type="text" placeholder="…or search a place" autocomplete="off" />
+      </div>
+      <div id="search-results" class="search-results"></div>
+
+      <div class="dist-label">Distance</div>
+      <div class="chips" id="chips">
+        <button class="chip" data-km="2">2 km</button>
+        <button class="chip" data-km="3">3 km</button>
+        <button class="chip active" data-km="5">5 km</button>
+        <button class="chip" data-km="10">10 km</button>
+        <input id="custom" class="chip-input" type="number" min="0.5" max="42" step="0.5" placeholder="km" />
+      </div>
+
+      <label class="toggle">
+        <input type="checkbox" id="preferPaths" checked />
+        <span>Prefer paths &amp; parks over busy roads</span>
+      </label>
+
+      <button id="go" class="go" disabled>Find flat route</button>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <div id="results" class="results"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
