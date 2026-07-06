@@ -15,6 +15,11 @@
   const $ = (id) => document.getElementById(id);
   const statusEl = $("status");
   const goBtn = $("go");
+  const panel = $("panel");
+  const isMobile = () => window.matchMedia("(max-width: 560px)").matches;
+
+  // Mobile: tap the grab handle to collapse/expand the controls sheet.
+  $("handle").addEventListener("click", () => panel.classList.toggle("collapsed"));
 
   function setStatus(msg, isError) {
     statusEl.className = "status" + (isError ? " error" : "");
@@ -123,6 +128,18 @@
     routeLayers = [];
   }
 
+  // Fit the route into the part of the map that's actually visible — clear of
+  // the left panel on desktop, and above the bottom sheet on mobile.
+  function fitToRoute(line) {
+    const b = line.getBounds();
+    if (isMobile()) {
+      const panelH = Math.min(panel.getBoundingClientRect().height, window.innerHeight * 0.5);
+      map.fitBounds(b, { paddingTopLeft: [24, 64], paddingBottomRight: [24, panelH + 20] });
+    } else {
+      map.fitBounds(b, { paddingTopLeft: [360, 30], paddingBottomRight: [40, 40] });
+    }
+  }
+
   function drawRoute(idx, focus) {
     clearRoutes();
     const r = routes[idx];
@@ -133,7 +150,7 @@
     halo.addTo(map);
     line.addTo(map);
     routeLayers = [halo, line];
-    if (focus) map.fitBounds(line.getBounds(), { padding: [50, 50] });
+    if (focus) fitToRoute(line);
 
     document.querySelectorAll(".route-card").forEach((c, i) => {
       c.classList.toggle("active", i === idx);
@@ -186,6 +203,7 @@
       if (!routes.length) throw new Error("No loops found — try another distance.");
 
       renderResults();
+      if (isMobile()) panel.classList.add("collapsed"); // drop the sheet so the map shows
       drawRoute(0, true);
       setStatus(`Found ${routes.length} route${routes.length > 1 ? "s" : ""} — flattest first. Tap one to view.`);
     } catch (err) {

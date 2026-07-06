@@ -180,6 +180,9 @@ button {
 .badge-rolling { background: #fff4e5; color: #b45309; }
 .badge-hilly { background: #fde8e8; color: #b91c1c; }
 
+/* Grab handle for the mobile bottom sheet (hidden on desktop) */
+.handle { display: none; }
+
 /* Mobile: dock the panel to the bottom like a sheet */
 @media (max-width: 560px) {
   .panel {
@@ -188,10 +191,32 @@ button {
     left: 0;
     width: 100%;
     max-width: 100%;
-    max-height: 72vh;
+    max-height: 80vh;
+    padding-top: 6px;
     border-radius: 16px 16px 0 0;
     border-left: 0; border-right: 0; border-bottom: 0;
+    transition: max-height 0.2s ease;
   }
+  .handle {
+    display: block;
+    width: 100%;
+    background: transparent;
+    padding: 6px 0 12px;
+    border: 0;
+    cursor: pointer;
+  }
+  .handle::before {
+    content: "";
+    display: block;
+    width: 44px; height: 5px;
+    margin: 0 auto;
+    border-radius: 999px;
+    background: var(--line);
+  }
+  /* Collapsed: hide the controls, keep the route cards + handle visible so
+     the map (and the route you just made) fills the screen. */
+  .panel.collapsed { max-height: 46vh; }
+  .panel.collapsed .panel-body { display: none; }
 }
 
 /* Dark mode */

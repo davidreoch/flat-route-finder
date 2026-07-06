@@ -16,6 +16,8 @@
     <div id="map"></div>
 
     <div class="panel" id="panel">
+      <button class="handle" id="handle" type="button" aria-label="Expand or collapse controls"></button>
+      <div class="panel-body" id="panel-body">
       <div class="panel-head">
         <h1>Flat Route Finder</h1>
         <p>Pick a distance, get a flat loop. No hills, no faff.</p>
@@ -43,6 +45,7 @@
       </label>
 
       <button id="go" class="go" disabled>Find flat route</button>
+      </div><!-- /.panel-body -->
 
       <div id="status" class="status" role="status" aria-live="polite"></div>
 
