@@ -2,10 +2,35 @@
 (function () {
   // --- Map ---------------------------------------------------------------
   const map = L.map("map", { zoomControl: true }).setView([55.9533, -3.1883], 13); // Edinburgh default
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors',
-  }).addTo(map);
+
+  // Basemaps — default to a clean, low-clutter style that's easy to read; the
+  // green route pops against it. Standard + Satellite offered via the toggle
+  // (top-right of the map).
+  const cleanLight = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", {
+    maxZoom: 20, attribution: '&copy; OpenStreetMap, &copy; CARTO',
+  });
+  const cleanDark = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png", {
+    maxZoom: 20, attribution: '&copy; OpenStreetMap, &copy; CARTO',
+  });
+  const standardTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19, attribution: '&copy; OpenStreetMap contributors',
+  });
+  const satelliteTiles = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    { maxZoom: 19, attribution: "Tiles &copy; Esri" }
+  );
+
+  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const cleanTiles = prefersDark ? cleanDark : cleanLight;
+  cleanTiles.addTo(map);
+
+  L.control
+    .layers(
+      { Clean: cleanTiles, Standard: standardTiles, Satellite: satelliteTiles },
+      null,
+      { position: "topright" }
+    )
+    .addTo(map);
 
   let startMarker = null;
   let start = null; // {lat, lon}
@@ -203,9 +228,15 @@
       if (!routes.length) throw new Error("No loops found — try another distance.");
 
       renderResults();
-      if (isMobile()) panel.classList.add("collapsed"); // drop the sheet so the map shows
-      drawRoute(0, true);
       setStatus(`Found ${routes.length} route${routes.length > 1 ? "s" : ""} — flattest first. Tap one to view.`);
+      if (isMobile()) {
+        panel.classList.add("collapsed"); // drop the sheet so the map shows
+        // Let the sheet finish collapsing before fitting, so the route frames
+        // into the visible area above it (not centred under the sheet).
+        setTimeout(() => drawRoute(0, true), 260);
+      } else {
+        drawRoute(0, true);
+      }
     } catch (err) {
       setStatus(err.message, true);
     } finally {
