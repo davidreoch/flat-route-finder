@@ -51,6 +51,22 @@
     statusEl.innerHTML = msg || "";
   }
 
+  // Centre a point in the part of the map that's actually visible. On mobile the
+  // bottom sheet covers the lower portion, so a plain setView() would drop the
+  // pin behind it — shift the map so the pin lands in the visible strip above.
+  function centerOn(lat, lon, zoom) {
+    const z = zoom || map.getZoom();
+    if (isMobile()) {
+      const panelTop = panel.getBoundingClientRect().top;
+      const size = map.getSize();
+      const pt = map.project([lat, lon], z);
+      pt.y += Math.max(0, (size.y - panelTop) / 2); // push centre down → pin rises up
+      map.setView(map.unproject(pt, z), z);
+    } else {
+      map.setView([lat, lon], z);
+    }
+  }
+
   function setStart(lat, lon, recenter) {
     start = { lat, lon };
     if (startMarker) startMarker.setLatLng([lat, lon]);
@@ -59,7 +75,7 @@
       const p = startMarker.getLatLng();
       start = { lat: p.lat, lon: p.lng };
     });
-    if (recenter) map.setView([lat, lon], 15);
+    if (recenter) centerOn(lat, lon, 15);
     goBtn.disabled = false;
   }
 
