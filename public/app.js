@@ -36,6 +36,7 @@
   let start = null; // {lat, lon}
   let routeLayers = []; // Leaflet layers for drawn routes
   let routes = []; // data from the API
+  let activeIdx = 0; // which route is currently shown / will be exported
 
   const $ = (id) => document.getElementById(id);
   const statusEl = $("status");
@@ -185,6 +186,7 @@
     clearRoutes();
     const r = routes[idx];
     if (!r) return;
+    activeIdx = idx;
     const latlngs = r.geometry.coordinates.map((c) => [c[1], c[0]]);
     const halo = L.polyline(latlngs, { color: "#fff", weight: 8, opacity: 0.9 });
     const line = L.polyline(latlngs, { color: "#16a34a", weight: 5, opacity: 1 });
@@ -213,7 +215,46 @@
       card.addEventListener("click", () => drawRoute(i, true));
       box.appendChild(card);
     });
+    $("download").hidden = false;
+    $("export-note").hidden = false;
   }
+
+  // --- GPX export --------------------------------------------------------
+  // Build a GPX track from a route's coordinates (incl. elevation). This is
+  // the standard file Strava, Garmin, Komoot, Runna etc. import to follow a
+  // route on a watch or phone.
+  function buildGpx(route) {
+    const km = (route.distance / 1000).toFixed(1);
+    const name = `Flat ${km}km loop`;
+    const pts = route.geometry.coordinates
+      .map((c) => {
+        const ele = typeof c[2] === "number" ? `<ele>${c[2].toFixed(1)}</ele>` : "";
+        return `      <trkpt lat="${c[1].toFixed(6)}" lon="${c[0].toFixed(6)}">${ele}</trkpt>`;
+      })
+      .join("\n");
+    return (
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<gpx version="1.1" creator="Flat Route Finder" xmlns="http://www.topografix.com/GPX/1/1">\n' +
+      `  <metadata><name>${name}</name></metadata>\n` +
+      `  <trk>\n    <name>${name}</name>\n    <trkseg>\n${pts}\n    </trkseg>\n  </trk>\n` +
+      "</gpx>\n"
+    );
+  }
+
+  function downloadGpx(route) {
+    if (!route) return;
+    const blob = new Blob([buildGpx(route)], { type: "application/gpx+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `flat-${(route.distance / 1000).toFixed(1)}km-loop.gpx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  $("download").addEventListener("click", () => downloadGpx(routes[activeIdx]));
 
   // --- Generate ----------------------------------------------------------
   $("go").addEventListener("click", async () => {
@@ -224,6 +265,8 @@
     goBtn.disabled = true;
     setStatus('<span class="spinner"></span>Finding the flattest loops near you…');
     $("results").innerHTML = "";
+    $("download").hidden = true;
+    $("export-note").hidden = true;
     clearRoutes();
 
     try {
