@@ -50,9 +50,15 @@
       <div id="status" class="status" role="status" aria-live="polite"></div>
 
       <div id="results" class="results"></div>
+      <div id="elevation" class="elevation" hidden></div>
 
       <button id="download" class="download" type="button" hidden>⬇ Download route (GPX)</button>
-      <p id="export-note" class="export-note" hidden>Import into Strava, Garmin, Komoot, Runna &amp; more.</p>
+      <p id="export-note" class="export-note" hidden>Works with Garmin, Komoot &amp; most running apps.</p>
+
+      <button id="dir-toggle" class="ghost-btn" type="button" hidden>🧭 Turn-by-turn directions</button>
+      <ol id="directions" class="directions" hidden></ol>
+
+      <button id="more" class="ghost-btn" type="button" hidden>🔄 Show different routes</button>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

@@ -37,6 +37,8 @@
   let routeLayers = []; // Leaflet layers for drawn routes
   let routes = []; // data from the API
   let activeIdx = 0; // which route is currently shown / will be exported
+  let dirOpen = false; // is the turn-by-turn list expanded?
+  let currentSeedBase = 0; // bumps when the user asks for different routes
 
   const $ = (id) => document.getElementById(id);
   const statusEl = $("status");
@@ -198,6 +200,9 @@
     document.querySelectorAll(".route-card").forEach((c, i) => {
       c.classList.toggle("active", i === idx);
     });
+
+    renderElevation(r);
+    renderDirections(r);
   }
 
   function renderResults() {
@@ -215,9 +220,77 @@
       card.addEventListener("click", () => drawRoute(i, true));
       box.appendChild(card);
     });
-    $("download").hidden = false;
-    $("export-note").hidden = false;
+    showExtras();
   }
+
+  // --- Elevation profile, directions, and the show/hide of the extras ----
+  function fmtDist(m) {
+    return m >= 1000 ? (m / 1000).toFixed(1) + " km" : Math.round(m) + " m";
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+    );
+  }
+
+  function showExtras() {
+    ["download", "export-note", "dir-toggle", "more"].forEach((id) => ($(id).hidden = false));
+  }
+  function hideExtras() {
+    ["download", "export-note", "dir-toggle", "directions", "more", "elevation"].forEach(
+      (id) => ($(id).hidden = true)
+    );
+    dirOpen = false;
+    $("dir-toggle").textContent = "🧭 Turn-by-turn directions";
+  }
+
+  // A tiny elevation chart so you can *see* how flat a loop is. The y-axis never
+  // zooms in below ~40 m, so a genuinely flat route reads as a flat line rather
+  // than an alarming zig-zag.
+  function renderElevation(route) {
+    const el = $("elevation");
+    const eles = route.geometry.coordinates.map((c) => (typeof c[2] === "number" ? c[2] : 0));
+    if (eles.length < 2) {
+      el.hidden = true;
+      return;
+    }
+    const minE = Math.min(...eles), maxE = Math.max(...eles);
+    const range = Math.max(maxE - minE, 40);
+    const mid = (minE + maxE) / 2;
+    const top = mid + range / 2, bot = mid - range / 2;
+    const W = 300, H = 60, pad = 4, n = eles.length;
+    const x = (i) => pad + (i / (n - 1)) * (W - 2 * pad);
+    const y = (e) => pad + (1 - (e - bot) / (top - bot)) * (H - 2 * pad);
+    const pts = eles.map((e, i) => `${x(i).toFixed(1)},${y(e).toFixed(1)}`);
+    const area = `M ${pad},${H - pad} L ${pts.join(" L ")} L ${W - pad},${H - pad} Z`;
+    el.innerHTML =
+      `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">` +
+      `<path class="elev-area" d="${area}"/><polyline class="elev-line" points="${pts.join(" ")}"/></svg>` +
+      `<div class="elev-meta"><span>Elevation</span><span>${Math.round(minE)}–${Math.round(maxE)} m · ${route.ascent} m climb</span></div>`;
+    el.hidden = false;
+  }
+
+  function renderDirections(route) {
+    const list = $("directions");
+    const steps = route.steps || [];
+    list.innerHTML = steps.length
+      ? steps
+          .map(
+            (s) =>
+              `<li><span class="dir-dist">${fmtDist(s.distance)}</span><span>${escapeHtml(
+                s.instruction
+              )}</span></li>`
+          )
+          .join("")
+      : "<li>Turn-by-turn isn't available for this loop.</li>";
+    $("directions").hidden = !dirOpen;
+  }
+
+  $("dir-toggle").addEventListener("click", () => {
+    dirOpen = !dirOpen;
+    $("directions").hidden = !dirOpen;
+    $("dir-toggle").textContent = dirOpen ? "🧭 Hide directions" : "🧭 Turn-by-turn directions";
+  });
 
   // --- GPX export --------------------------------------------------------
   // Build a GPX track from a route's coordinates (incl. elevation). This is
@@ -257,16 +330,16 @@
   $("download").addEventListener("click", () => downloadGpx(routes[activeIdx]));
 
   // --- Generate ----------------------------------------------------------
-  $("go").addEventListener("click", async () => {
+  async function generate() {
     if (!start) {
       setStatus("Set a start point first — tap “Use my location”.", true);
       return;
     }
     goBtn.disabled = true;
+    $("more").disabled = true;
     setStatus('<span class="spinner"></span>Finding the flattest loops near you…');
     $("results").innerHTML = "";
-    $("download").hidden = true;
-    $("export-note").hidden = true;
+    hideExtras();
     clearRoutes();
 
     try {
@@ -278,6 +351,7 @@
           lon: start.lon,
           distance: Math.round(distanceKm * 1000),
           preferPaths: $("preferPaths").checked,
+          seedBase: currentSeedBase,
         }),
       });
       const data = await r.json();
@@ -300,7 +374,17 @@
       setStatus(err.message, true);
     } finally {
       goBtn.disabled = false;
+      $("more").disabled = false;
     }
+  }
+
+  $("go").addEventListener("click", () => {
+    currentSeedBase = 0; // fresh search → flattest batch
+    generate();
+  });
+  $("more").addEventListener("click", () => {
+    currentSeedBase += 6; // a different batch of loops, same start & distance
+    generate();
   });
 
   // Try to locate on load for the true one-tap feel (silent if denied).

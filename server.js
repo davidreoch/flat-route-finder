@@ -37,6 +37,22 @@ function distanceOf(feature) {
   return feature?.properties?.summary?.distance ?? 0; // metres
 }
 
+// Flatten ORS segments → a simple turn-by-turn list for the UI.
+function stepsOf(feature) {
+  const segs = feature?.properties?.segments || [];
+  const steps = [];
+  segs.forEach((seg) =>
+    (seg.steps || []).forEach((st) =>
+      steps.push({
+        instruction: st.instruction || "",
+        distance: Math.round(st.distance || 0),
+        name: st.name && st.name !== "-" ? st.name : "",
+      })
+    )
+  );
+  return steps;
+}
+
 // Ask ORS for one round-trip loop of ~length metres from [lon,lat].
 // `seed` varies the direction so we can generate several and keep the flattest.
 async function fetchLoop({ lat, lon, length, seed, profile }) {
@@ -44,7 +60,7 @@ async function fetchLoop({ lat, lon, length, seed, profile }) {
   const body = {
     coordinates: [[lon, lat]],
     elevation: true,
-    instructions: false,
+    instructions: true, // we surface turn-by-turn directions to the user
     options: { round_trip: { length, points: 4, seed } },
   };
   const r = await fetch(url, {
@@ -84,7 +100,9 @@ app.post("/api/routes", async (req, res) => {
 
   // foot-hiking prefers trails/paths; foot-walking sticks to pavements/streets.
   const profile = preferPaths ? "foot-hiking" : "foot-walking";
-  const seeds = [1, 2, 3, 4, 5, 6];
+  // seedBase lets the client ask for a fresh batch of loops ("more routes").
+  const seedBase = Math.max(0, Math.floor(Number(req.body?.seedBase) || 0));
+  const seeds = [1, 2, 3, 4, 5, 6].map((s) => s + seedBase);
 
   try {
     const settled = await Promise.all(
@@ -100,6 +118,7 @@ app.post("/api/routes", async (req, res) => {
         geometry: f.geometry, // GeoJSON LineString [lon,lat,ele]
         distance: distanceOf(f),
         ascent: Math.round(ascentOf(f)),
+        steps: stepsOf(f),
       }))
       .filter((r) => r.distance > 0)
       .sort((a, b) => a.ascent - b.ascent);
