@@ -188,6 +188,21 @@ button {
   justify-content: space-between;
 }
 
+/* Affiliate recommendation — subtle, not spammy */
+.watch-aff {
+  display: block;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+.watch-aff strong { color: var(--accent); }
+.watch-aff:hover { border-color: var(--accent); }
+
 /* Secondary "ghost" buttons (directions toggle, more routes) */
 .ghost-btn {
   width: 100%;

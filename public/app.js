@@ -40,6 +40,14 @@
   let dirOpen = false; // is the turn-by-turn list expanded?
   let currentSeedBase = 0; // bumps when the user asks for different routes
 
+  // === MONETISATION ======================================================
+  // Swap this for your real affiliate link once you're approved:
+  //   • Amazon Associates: append your tag, e.g. ...&tag=yourtag-21
+  //   • Garmin / AvantLink / Impact: paste your affiliate deep link
+  // Set to "" to hide the recommendation entirely.
+  const WATCH_AFFILIATE_URL = "https://www.amazon.co.uk/s?k=gps+running+watch";
+  // =======================================================================
+
   const $ = (id) => document.getElementById(id);
   const statusEl = $("status");
   const goBtn = $("go");
@@ -235,9 +243,13 @@
 
   function showExtras() {
     ["download", "export-note", "dir-toggle", "more"].forEach((id) => ($(id).hidden = false));
+    if (WATCH_AFFILIATE_URL) {
+      $("watch-aff").href = WATCH_AFFILIATE_URL;
+      $("watch-aff").hidden = false;
+    }
   }
   function hideExtras() {
-    ["download", "export-note", "dir-toggle", "directions", "more", "elevation"].forEach(
+    ["download", "export-note", "watch-aff", "dir-toggle", "directions", "more", "elevation"].forEach(
       (id) => ($(id).hidden = true)
     );
     dirOpen = false;
