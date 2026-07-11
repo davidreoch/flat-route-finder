@@ -45,7 +45,7 @@
   //   • Amazon Associates: append your tag, e.g. ...&tag=yourtag-21
   //   • Garmin / AvantLink / Impact: paste your affiliate deep link
   // Set to "" to hide the recommendation entirely.
-  const WATCH_AFFILIATE_URL = "https://www.amazon.co.uk/s?k=gps+running+watch";
+  const WATCH_AFFILIATE_URL = "https://www.amazon.co.uk/s?k=gps+running+watch&tag=flatroutes-21";
   // =======================================================================
 
   const $ = (id) => document.getElementById(id);
