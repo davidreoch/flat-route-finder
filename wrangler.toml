@@ -1,4 +1,5 @@
-name = "flatroutes"
+# Must match the Worker name in the Cloudflare dashboard, or CI overrides it.
+name = "flat-route-finder"
 main = "src/index.js"
 compatibility_date = "2026-07-01"
 
