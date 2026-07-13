@@ -1,7 +1,12 @@
 name = "flatroutes"
+main = "src/index.js"
 compatibility_date = "2026-07-01"
-pages_build_output_dir = "public"
+
+# public/ is served by Cloudflare's static asset layer. Asset requests are free
+# and don't count as Worker invocations; the Worker only runs for /api/*.
+[assets]
+directory = "./public"
 
 # ORS_API_KEY is NOT set here — it's a secret.
-# Production: Cloudflare dashboard → Pages → flatroutes → Settings → Variables and Secrets.
-# Local dev:  put it in .dev.vars (gitignored).
+# Production: dashboard → the Worker → Settings → Variables and Secrets.
+# Local dev:  .dev.vars (gitignored).

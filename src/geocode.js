@@ -1,18 +1,12 @@
-// GET /api/geocode?q=... — Cloudflare Pages Function.
+// GET /api/geocode?q=...
 //
 // Place name → coordinates. Proxied (rather than called from the browser) so we
 // can send a proper User-Agent, which OpenStreetMap Nominatim's usage policy
 // requires.
 
-const json = (data, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
+import { json, bad } from "./http.js";
 
-const bad = (status, error) => json({ error }, status);
-
-export async function onRequestGet({ request }) {
+export async function handleGeocode(request) {
   const q = (new URL(request.url).searchParams.get("q") || "").trim();
   if (!q) return bad(400, "Type a place to search.");
 
