@@ -1,0 +1,7 @@
+name = "flatroutes"
+compatibility_date = "2026-07-01"
+pages_build_output_dir = "public"
+
+# ORS_API_KEY is NOT set here — it's a secret.
+# Production: Cloudflare dashboard → Pages → flatroutes → Settings → Variables and Secrets.
+# Local dev:  put it in .dev.vars (gitignored).
