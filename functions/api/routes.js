@@ -1,9 +1,16 @@
-// POST /api/routes
+// POST /api/routes — Cloudflare Pages Function.
 //
 // Asks OpenRouteService for a handful of round-trip loops from the start point
-// and returns the flattest few. The ORS key comes from env (Worker secret).
+// and returns the flattest few. Runs on the Workers runtime: `fetch` is global,
+// and the ORS key comes from env (Pages → Settings → Variables and Secrets).
 
-import { json, bad } from "./http.js";
+const json = (data, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+
+const bad = (status, error) => json({ error }, status);
 
 // Total elevation gain (ascent) in metres. ORS puts it at properties.ascent when
 // elevation:true; fall back to summing the z values.
@@ -65,7 +72,7 @@ async function fetchLoop({ lat, lon, length, seed, profile, key }) {
   return data?.features?.[0] || null;
 }
 
-export async function handleRoutes(request, env) {
+export async function onRequestPost({ request, env }) {
   const key = env.ORS_API_KEY;
   if (!key) return bad(503, "Routing is not configured yet.");
 

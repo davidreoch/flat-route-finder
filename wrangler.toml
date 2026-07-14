@@ -1,13 +1,11 @@
-# Must match the Worker name in the Cloudflare dashboard, or CI overrides it.
+# Cloudflare Pages project.
+#
+# Pages (unlike Workers) supports custom domains with EXTERNAL DNS, so
+# flatroutes.com stays on Porkbun's nameservers and just points a record here.
 name = "flat-route-finder"
-main = "src/index.js"
 compatibility_date = "2026-07-01"
-
-# public/ is served by Cloudflare's static asset layer. Asset requests are free
-# and don't count as Worker invocations; the Worker only runs for /api/*.
-[assets]
-directory = "./public"
+pages_build_output_dir = "public"
 
 # ORS_API_KEY is NOT set here — it's a secret.
-# Production: dashboard → the Worker → Settings → Variables and Secrets.
+# Production: dashboard → Pages project → Settings → Variables and Secrets.
 # Local dev:  .dev.vars (gitignored).

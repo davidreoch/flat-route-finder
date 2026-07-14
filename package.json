@@ -5,8 +5,8 @@
   "private": true,
   "description": "One-tap flat running route finder — pick a distance, get a flat loop from your location.",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy"
   },
   "devDependencies": {
     "wrangler": "^4.110.0"
