@@ -399,8 +399,20 @@
     generate();
   });
 
-  // Try to locate on load for the true one-tap feel (silent if denied).
-  if (navigator.geolocation) {
+  // Optional pre-set location, used by the /flat-running-routes-<city> landing
+  // pages. Purely additive: on the homepage this global is undefined, so nothing
+  // here runs and behaviour is unchanged. When present, we drop the start pin on
+  // the city so the user can pick a distance and go straight away.
+  const city = window.FLATROUTES_CITY;
+  const hasCity = city && isFinite(city.lat) && isFinite(city.lon);
+  if (hasCity) {
+    setStart(city.lat, city.lon, true);
+    if (city.name) $("search").value = city.name;
+  }
+
+  // Try to locate on load for the true one-tap feel (silent if denied). Skipped
+  // on a city page so we honour that page's location instead of overriding it.
+  if (!hasCity && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         if (!start) setStart(pos.coords.latitude, pos.coords.longitude, true);

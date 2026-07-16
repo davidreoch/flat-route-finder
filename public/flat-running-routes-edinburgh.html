@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Flat Running Routes in Edinburgh — Free, No Login | Flat Routes</title>
+    <meta name="description" content="Find a flat running route in Edinburgh. Pick a distance, tap once, get a flat loop that prefers paths over busy roads. Free, no login, GPX export." />
+    <link rel="canonical" href="https://flatroutes.com/flat-running-routes-edinburgh" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Flat Running Routes in Edinburgh — Free, No Login | Flat Routes" />
+    <meta property="og:description" content="Tap once, get a flat running loop in Edinburgh. Free, no login, GPX export." />
+    <meta property="og:url" content="https://flatroutes.com/flat-running-routes-edinburgh" />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      /* City-page copy only — kept here so the shared styles.css stays untouched. */
+      .city-copy { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+      .city-copy h2 { font-size: 0.95rem; margin: 0 0 8px; }
+      .city-copy p { margin: 0 0 10px; color: var(--muted); font-size: 0.9rem; }
+      .city-copy ul { margin: 0; padding-left: 18px; font-size: 0.88rem; }
+      .city-copy li { margin-bottom: 7px; }
+      .city-copy li strong { color: var(--text); }
+      .city-nav { margin-top: 14px; font-size: 0.82rem; color: var(--muted); }
+      .city-nav a { display: inline-block; margin: 0 8px 6px 0; color: var(--accent); text-decoration: none; }
+      .city-nav a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="panel" id="panel">
+      <button class="handle" id="handle" type="button" aria-label="Expand or collapse controls"></button>
+      <div class="panel-body" id="panel-body">
+      <div class="panel-head">
+        <h1>Flat Running Routes in Edinburgh</h1>
+        <p>Yes, it's a hilly city — but there's plenty of flat running if you know where to look.</p>
+      </div>
+
+      <button id="locate" class="locate">📍 Use my location</button>
+
+      <div class="search-row">
+        <input id="search" type="text" placeholder="…or search a place" autocomplete="off" />
+      </div>
+      <div id="search-results" class="search-results"></div>
+
+      <div class="dist-label">Distance</div>
+      <div class="chips" id="chips">
+        <button class="chip" data-km="2">2 km</button>
+        <button class="chip" data-km="3">3 km</button>
+        <button class="chip active" data-km="5">5 km</button>
+        <button class="chip" data-km="10">10 km</button>
+        <input id="custom" class="chip-input" type="number" min="0.5" max="42" step="0.5" placeholder="km" />
+      </div>
+
+      <label class="toggle">
+        <input type="checkbox" id="preferPaths" checked />
+        <span>Prefer paths &amp; parks over busy roads</span>
+      </label>
+
+      <button id="go" class="go" disabled>Find flat route</button>
+
+      <section class="city-copy">
+        <p>Edinburgh has a reputation for hills — Arthur's Seat, the Crags, the climb up to the Old Town. But you don't have to run any of them. The city is threaded with flat, traffic-free paths along water, and once you find them you can rack up easy miles without a single incline.</p>
+        <p>Set your distance below and the finder will plot a flat loop from wherever you drop the pin. Move it towards the canal or the shore for the flattest results.</p>
+        <h2>Where it's flat in Edinburgh</h2>
+        <ul>
+          <li><strong>Union Canal towpath</strong> — Dead flat for miles from Fountainbridge out west — the single best flat run in the city.</li>
+          <li><strong>Water of Leith Walkway</strong> — A gentle river path winding from Balerno through Dean Village to Leith.</li>
+          <li><strong>Cramond &amp; Silverknowes promenade</strong> — A flat seafront stretch along the Firth of Forth with big open views.</li>
+          <li><strong>The Meadows &amp; Bruntsfield Links</strong> — Flat parkland paths right in the centre, ideal for a quick loop.</li>
+        </ul>
+        <nav class="city-nav" aria-label="Flat running routes in other cities">
+          Other cities:
+          <a href="/flat-running-routes-london">London</a>
+          <a href="/flat-running-routes-manchester">Manchester</a>
+          <a href="/flat-running-routes-bristol">Bristol</a>
+          <a href="/flat-running-routes-cambridge">Cambridge</a>
+          <a href="/flat-running-routes-york">York</a>
+          <a href="/flat-running-routes-glasgow">Glasgow</a>
+          <a href="/flat-running-routes-birmingham">Birmingham</a>
+          <a href="/">Anywhere →</a>
+        </nav>
+      </section>
+      </div><!-- /.panel-body -->
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <div id="results" class="results"></div>
+      <div id="elevation" class="elevation" hidden></div>
+
+      <button id="download" class="download" type="button" hidden>⬇ Download route (GPX)</button>
+      <p id="export-note" class="export-note" hidden>Works with Garmin, Komoot &amp; most running apps.</p>
+
+      <a id="watch-aff" class="watch-aff" target="_blank" rel="noopener sponsored" hidden>⌚ Follow routes hands-free — <strong>best running watches</strong> →</a>
+
+      <button id="dir-toggle" class="ghost-btn" type="button" hidden>🧭 Turn-by-turn directions</button>
+      <ol id="directions" class="directions" hidden></ol>
+
+      <button id="more" class="ghost-btn" type="button" hidden>🔄 Show different routes</button>
+    </div>
+
+    <script>window.FLATROUTES_CITY = {"name":"Edinburgh","lat":55.9533,"lon":-3.1883};</script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Flat Running Routes in York — Free, No Login | Flat Routes</title>
+    <meta name="description" content="Find a flat running route in York. Pick a distance, tap once, get a flat loop that prefers paths over busy roads. Free, no login, GPX export." />
+    <link rel="canonical" href="https://flatroutes.com/flat-running-routes-york" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Flat Running Routes in York — Free, No Login | Flat Routes" />
+    <meta property="og:description" content="Tap once, get a flat running loop in York. Free, no login, GPX export." />
+    <meta property="og:url" content="https://flatroutes.com/flat-running-routes-york" />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      /* City-page copy only — kept here so the shared styles.css stays untouched. */
+      .city-copy { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+      .city-copy h2 { font-size: 0.95rem; margin: 0 0 8px; }
+      .city-copy p { margin: 0 0 10px; color: var(--muted); font-size: 0.9rem; }
+      .city-copy ul { margin: 0; padding-left: 18px; font-size: 0.88rem; }
+      .city-copy li { margin-bottom: 7px; }
+      .city-copy li strong { color: var(--text); }
+      .city-nav { margin-top: 14px; font-size: 0.82rem; color: var(--muted); }
+      .city-nav a { display: inline-block; margin: 0 8px 6px 0; color: var(--accent); text-decoration: none; }
+      .city-nav a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="panel" id="panel">
+      <button class="handle" id="handle" type="button" aria-label="Expand or collapse controls"></button>
+      <div class="panel-body" id="panel-body">
+      <div class="panel-head">
+        <h1>Flat Running Routes in York</h1>
+        <p>Flat, compact and full of riverside paths — York is made for easy running.</p>
+      </div>
+
+      <button id="locate" class="locate">📍 Use my location</button>
+
+      <div class="search-row">
+        <input id="search" type="text" placeholder="…or search a place" autocomplete="off" />
+      </div>
+      <div id="search-results" class="search-results"></div>
+
+      <div class="dist-label">Distance</div>
+      <div class="chips" id="chips">
+        <button class="chip" data-km="2">2 km</button>
+        <button class="chip" data-km="3">3 km</button>
+        <button class="chip active" data-km="5">5 km</button>
+        <button class="chip" data-km="10">10 km</button>
+        <input id="custom" class="chip-input" type="number" min="0.5" max="42" step="0.5" placeholder="km" />
+      </div>
+
+      <label class="toggle">
+        <input type="checkbox" id="preferPaths" checked />
+        <span>Prefer paths &amp; parks over busy roads</span>
+      </label>
+
+      <button id="go" class="go" disabled>Find flat route</button>
+
+      <section class="city-copy">
+        <p>York sits on flat ground beside two rivers, so level running is easy to find. The riverside paths and a converted railway line give you traffic-free flat miles straight from the centre.</p>
+        <p>Set your distance and drop the pin by the Ouse or the old railway path for the flattest loop.</p>
+        <h2>Where it's flat in York</h2>
+        <ul>
+          <li><strong>The River Ouse &amp; River Foss paths</strong> — Flat riverside running looping through the heart of the city.</li>
+          <li><strong>The Solar System cycle path</strong> — A flat, traffic-free former railway heading out towards Selby.</li>
+          <li><strong>Rowntree Park</strong> — Level Edwardian parkland beside the Ouse.</li>
+          <li><strong>Millennium Bridge loops</strong> — Flat out-and-backs and loops along both riverbanks.</li>
+        </ul>
+        <nav class="city-nav" aria-label="Flat running routes in other cities">
+          Other cities:
+          <a href="/flat-running-routes-edinburgh">Edinburgh</a>
+          <a href="/flat-running-routes-london">London</a>
+          <a href="/flat-running-routes-manchester">Manchester</a>
+          <a href="/flat-running-routes-bristol">Bristol</a>
+          <a href="/flat-running-routes-cambridge">Cambridge</a>
+          <a href="/flat-running-routes-glasgow">Glasgow</a>
+          <a href="/flat-running-routes-birmingham">Birmingham</a>
+          <a href="/">Anywhere →</a>
+        </nav>
+      </section>
+      </div><!-- /.panel-body -->
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <div id="results" class="results"></div>
+      <div id="elevation" class="elevation" hidden></div>
+
+      <button id="download" class="download" type="button" hidden>⬇ Download route (GPX)</button>
+      <p id="export-note" class="export-note" hidden>Works with Garmin, Komoot &amp; most running apps.</p>
+
+      <a id="watch-aff" class="watch-aff" target="_blank" rel="noopener sponsored" hidden>⌚ Follow routes hands-free — <strong>best running watches</strong> →</a>
+
+      <button id="dir-toggle" class="ghost-btn" type="button" hidden>🧭 Turn-by-turn directions</button>
+      <ol id="directions" class="directions" hidden></ol>
+
+      <button id="more" class="ghost-btn" type="button" hidden>🔄 Show different routes</button>
+    </div>
+
+    <script>window.FLATROUTES_CITY = {"name":"York","lat":53.96,"lon":-1.0873};</script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

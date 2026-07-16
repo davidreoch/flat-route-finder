@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Flat Running Routes in Bristol — Free, No Login | Flat Routes</title>
+    <meta name="description" content="Find a flat running route in Bristol. Pick a distance, tap once, get a flat loop that prefers paths over busy roads. Free, no login, GPX export." />
+    <link rel="canonical" href="https://flatroutes.com/flat-running-routes-bristol" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Flat Running Routes in Bristol — Free, No Login | Flat Routes" />
+    <meta property="og:description" content="Tap once, get a flat running loop in Bristol. Free, no login, GPX export." />
+    <meta property="og:url" content="https://flatroutes.com/flat-running-routes-bristol" />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      /* City-page copy only — kept here so the shared styles.css stays untouched. */
+      .city-copy { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+      .city-copy h2 { font-size: 0.95rem; margin: 0 0 8px; }
+      .city-copy p { margin: 0 0 10px; color: var(--muted); font-size: 0.9rem; }
+      .city-copy ul { margin: 0; padding-left: 18px; font-size: 0.88rem; }
+      .city-copy li { margin-bottom: 7px; }
+      .city-copy li strong { color: var(--text); }
+      .city-nav { margin-top: 14px; font-size: 0.82rem; color: var(--muted); }
+      .city-nav a { display: inline-block; margin: 0 8px 6px 0; color: var(--accent); text-decoration: none; }
+      .city-nav a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="panel" id="panel">
+      <button class="handle" id="handle" type="button" aria-label="Expand or collapse controls"></button>
+      <div class="panel-body" id="panel-body">
+      <div class="panel-head">
+        <h1>Flat Running Routes in Bristol</h1>
+        <p>Bristol is hilly overall — but the harbourside and the railway path stay reliably flat.</p>
+      </div>
+
+      <button id="locate" class="locate">📍 Use my location</button>
+
+      <div class="search-row">
+        <input id="search" type="text" placeholder="…or search a place" autocomplete="off" />
+      </div>
+      <div id="search-results" class="search-results"></div>
+
+      <div class="dist-label">Distance</div>
+      <div class="chips" id="chips">
+        <button class="chip" data-km="2">2 km</button>
+        <button class="chip" data-km="3">3 km</button>
+        <button class="chip active" data-km="5">5 km</button>
+        <button class="chip" data-km="10">10 km</button>
+        <input id="custom" class="chip-input" type="number" min="0.5" max="42" step="0.5" placeholder="km" />
+      </div>
+
+      <label class="toggle">
+        <input type="checkbox" id="preferPaths" checked />
+        <span>Prefer paths &amp; parks over busy roads</span>
+      </label>
+
+      <button id="go" class="go" disabled>Find flat route</button>
+
+      <section class="city-copy">
+        <p>Bristol has some serious hills, so the trick to flat running here is to stick to the water and the old railway line. Do that and you'll find long, level, traffic-free miles.</p>
+        <p>For the flattest loop, drop the pin down by the harbour or on the Bristol &amp; Bath Railway Path before setting your distance.</p>
+        <h2>Where it's flat in Bristol</h2>
+        <ul>
+          <li><strong>Bristol &amp; Bath Railway Path</strong> — A flat, tarmac, traffic-free former railway — the go-to flat run in the city.</li>
+          <li><strong>The Harbourside loop</strong> — Level waterside paths circling the floating harbour.</li>
+          <li><strong>The River Avon towpath</strong> — Flat running along the river towards Pill and the Avon Gorge.</li>
+          <li><strong>Eastville Park</strong> — Flat parkland beside the River Frome.</li>
+        </ul>
+        <nav class="city-nav" aria-label="Flat running routes in other cities">
+          Other cities:
+          <a href="/flat-running-routes-edinburgh">Edinburgh</a>
+          <a href="/flat-running-routes-london">London</a>
+          <a href="/flat-running-routes-manchester">Manchester</a>
+          <a href="/flat-running-routes-cambridge">Cambridge</a>
+          <a href="/flat-running-routes-york">York</a>
+          <a href="/flat-running-routes-glasgow">Glasgow</a>
+          <a href="/flat-running-routes-birmingham">Birmingham</a>
+          <a href="/">Anywhere →</a>
+        </nav>
+      </section>
+      </div><!-- /.panel-body -->
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <div id="results" class="results"></div>
+      <div id="elevation" class="elevation" hidden></div>
+
+      <button id="download" class="download" type="button" hidden>⬇ Download route (GPX)</button>
+      <p id="export-note" class="export-note" hidden>Works with Garmin, Komoot &amp; most running apps.</p>
+
+      <a id="watch-aff" class="watch-aff" target="_blank" rel="noopener sponsored" hidden>⌚ Follow routes hands-free — <strong>best running watches</strong> →</a>
+
+      <button id="dir-toggle" class="ghost-btn" type="button" hidden>🧭 Turn-by-turn directions</button>
+      <ol id="directions" class="directions" hidden></ol>
+
+      <button id="more" class="ghost-btn" type="button" hidden>🔄 Show different routes</button>
+    </div>
+
+    <script>window.FLATROUTES_CITY = {"name":"Bristol","lat":51.4545,"lon":-2.5879};</script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
